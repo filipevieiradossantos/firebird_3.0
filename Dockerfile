@@ -1,27 +1,33 @@
 FROM ubuntu:16.04
-MAINTAINER Filipe Vieira
 
-ENV container docker 
+MAINTAINER Filipe Vieira <filipevieiradossantos@gmail.com>
 
-RUN wget https://github.com/FirebirdSQL/firebird/releases/download/R3_0_3/Firebird-3.0.3.32900-0.amd64.tar.gz
-RUN tar -xpzvf Firebird-3.0.2.32703-0.amd64.tar.gz; \
-RUN apt-get update
-RUN apt-get install libstdc++5
-RUN wget http://ftp.br.debian.org/debian/pool/main/g/gcc-3.3/libstdc++5_3.3.6-28_amd64.deb
-RUN dpkg -i libstdc++5_3.3.6-28_amd64.deb
-RUN cd Firebird-3.0.3.32900-0.amd64
-RUN apt-get install libtommath-dev
-RUN ./install.sh
-RUN filipe@vieira
-RUN systemctl enable firebird-superserver.service
-RUN systemctl start firebird-superserver.service
-RUN iptables -A INPUT -p tcp --dport 3050 -j ACCEPT
-RUN iptables -A INPUT -p udp --dport 3050 -j ACCEPT
-RUN iptables -I INPUT -p tcp --dport 3050 -j ACCEPT
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN sudo iptables-save -c
-RUN cd /opt/firebird
-RUN mkdir data
+RUN apt-get update &&\
+    apt-get upgrade -y &&\
+    apt-get install -y libncurses5-dev bzip2 curl \
+        gcc g++ make zlib1g-dev libicu-dev libtommath-dev libtommath0 &&\
+    \
+    mkdir -p /tmp/firebird3 &&\
+    cd /tmp/firebird3 &&\
+    curl -L -o firebird3.tar.bz2 \
+        "https://github.com/FirebirdSQL/firebird/releases/download/R3_0_3/Firebird-3.0.3.32900-0.arm.tar.gz" &&\
+    tar --strip=1 -xf firebird3.tar.bz2 &&\
+    ./configure --enable-superserver --prefix=/opt/firebird3 &&\
+    make &&\
+    make silent_install &&\
+    cd / &&\
+    rm -R /tmp/firebird3 &&\
+    \
+    apt-get purge -y --auto-remove libncurses5-dev bzip2 curl \
+        gcc g++ make zlib1g-dev libtommath-dev
 
-RUN chown -R firebird data
-RUN chgrp -R firebird data
+ADD run.sh /opt/firebird3/run.sh
+RUN chmod +x /opt/firebird3/run.sh
+
+VOLUME ["/sqlbase"]
+
+EXPOSE 3050
+
+CMD ["/opt/firebird3/run.sh"]
