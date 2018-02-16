@@ -24,7 +24,7 @@ RUN apt-get update &&\
         gcc g++ make zlib1g-dev libtommath-dev
 
 ADD run.sh /opt/firebird3/run.sh
-RUN chmod +x /opt/firebird3/run.sh
+RUN chmod 777 /opt/firebird3/run.sh
 
 VOLUME ["/sqlbase"]
 
