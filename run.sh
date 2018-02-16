@@ -1,5 +1,3 @@
-#!/bin/bash
-
 cd /opt/firebird3/
 
 echo "Setting SYSDBA's password..."
