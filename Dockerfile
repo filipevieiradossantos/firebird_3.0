@@ -3,7 +3,6 @@ MAINTAINER Filipe Vieira
 
 ENV container docker 
 
-RUN cd /
 RUN wget https://github.com/FirebirdSQL/firebird/releases/download/R3_0_3/Firebird-3.0.3.32900-0.amd64.tar.gz
 RUN tar -xpzvf Firebird-3.0.2.32703-0.amd64.tar.gz; \
 RUN apt-get update
