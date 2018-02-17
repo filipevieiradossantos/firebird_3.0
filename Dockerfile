@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-LABEL maintainer="jacob.alberty@foundigital.com"
+LABEL maintainer= Filipe Vieira "filipevieiradossantos@gmail.com"
 
 ENV PREFIX=/usr/local/firebird
 ENV VOLUME=/firebird
