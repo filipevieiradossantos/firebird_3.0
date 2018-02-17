@@ -1,13 +1,34 @@
-FROM ubuntu:16.04
-MAINTAINER Filipe Vieira <filipevieiradossantos@gmail.com>
+FROM debian:jessie
 
-ENV FBURL=https://github.com/FirebirdSQL/firebird/releases/download/R2_5_8/Firebird-2.5.8.27089-0.tar.bz2
+LABEL maintainer="jacob.alberty@foundigital.com"
 
-RUN apt-get update
-RUN apt-get install -y wget libtommath-dev libicu-dev
-RUN	mkdir -p /home/firebird && \
-    cd /home/firebird && \
-    apt-get wget https://github.com/FirebirdSQL/firebird/releases/download/R2_5_8/Firebird-2.5.8.27089-0.tar.bz2 && \
-    tar --strip=1 -xf firebird-source.tar.bz2 && \
+ENV PREFIX=/usr/local/firebird
+ENV VOLUME=/firebird
+ENV DEBIAN_FRONTEND noninteractive
+ENV FBURL=https://github.com/FirebirdSQL/firebird/releases/download/R3_0_3/Firebird-3.0.3.32900-0.tar.bz2
+ENV DBPATH=/firebird/data
 
-EXPOSE 3050
+COPY build.sh ./build.sh
+
+RUN chmod +x ./build.sh && \
+    sync && \
+    ./build.sh && \
+    rm -f ./build.sh
+
+VOLUME ["/firebird"]
+
+EXPOSE 3050/tcp
+
+COPY docker-entrypoint.sh ${PREFIX}/docker-entrypoint.sh
+RUN chmod +x ${PREFIX}/docker-entrypoint.sh
+
+COPY docker-healthcheck.sh ${PREFIX}/docker-healthcheck.sh
+RUN chmod +x ${PREFIX}/docker-healthcheck.sh \
+    && apt-get update \
+    && apt-get -qy install netcat \
+    && rm -rf /var/lib/apt/lists/*
+HEALTHCHECK CMD ${PREFIX}/docker-healthcheck.sh || exit 1
+
+ENTRYPOINT ["/usr/local/firebird/docker-entrypoint.sh"]
+
+CMD ["/usr/local/firebird/bin/fbguard"]
