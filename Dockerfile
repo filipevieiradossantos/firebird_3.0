@@ -8,14 +8,14 @@ ENV DBPATH=/firebird/data
 
 COPY build.sh ./build.sh
 
-RUN chmod +x ./build.sh && \
+RUN ./build.sh && \
     sync && \
     ./build.sh && \
     rm -f ./build.sh
 
 VOLUME ["/firebird"]
 
-EXPOSE 3050/tcp
+EXPOSE 3050
 
 COPY docker-entrypoint.sh ${PREFIX}/docker-entrypoint.sh
 RUN chmod +x ${PREFIX}/docker-entrypoint.sh
