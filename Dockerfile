@@ -5,7 +5,7 @@ ENV RELEASE=3.0.2
 ENV BUILD=32703-0
 ENV ARCH=amd64
 ENV MIRROR_URL=https://jaist.dl.sourceforge.net/project/firebird/firebird-linux-$ARCH/$RELEASE-Release/Firebird-$RELEASE.$BUILD.$ARCH.tar.gz
-
+USER root
 WORKDIR /
 
 RUN yum update && yum upgrade -y \
