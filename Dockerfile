@@ -8,7 +8,7 @@ ENV MIRROR_URL=https://jaist.dl.sourceforge.net/project/firebird/firebird-linux-
 USER root
 WORKDIR /
 
-RUN yum update && yum -y upgrade \
+RUN yum -y update && yum -y upgrade \
  && yum -y install epel-release \
  && yum -y install libtommath libicu \
  && yum -y clean all
