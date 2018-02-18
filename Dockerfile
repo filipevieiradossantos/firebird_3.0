@@ -8,10 +8,10 @@ ENV DBPATH=/firebird/data
 
 COPY build.sh ./build.sh
 
-RUN chmod +x /build.sh && \
-    sync && \
-    /build.sh && \
-    rm -f /build.sh
+RUN chmod +x /build.sh
+RUN sync
+RUN /build.sh
+RUN rm -f /build.sh
 
 VOLUME ["/firebird"]
 
