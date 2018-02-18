@@ -2,11 +2,11 @@
 set -e
 CPUC=$(awk '/^processor/{n+=1}END{print n}' /proc/cpuinfo)
 
-apt-get update
-apt-get install -qy --no-install-recommends \
+apt-get -q update
+apt-get -qy install --no-install-recommends \
     libicu52 \
     libtommath0
-apt-get install -qy --no-install-recommends \
+apt-get -y install--no-install-recommends \
     bzip2 \
     ca-certificates \
     curl \
