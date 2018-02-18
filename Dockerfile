@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM ubuntu:16.04
 
 LABEL maintainer= Filipe Vieira "filipevieiradossantos@gmail.com"
 
