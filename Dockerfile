@@ -8,10 +8,10 @@ ENV MIRROR_URL=https://jaist.dl.sourceforge.net/project/firebird/firebird-linux-
 USER root
 WORKDIR /
 
-RUN yum update && yum upgrade -y \
- && yum install -y epel-release \
- && yum install -y libtommath libicu \
- && yum clean all -y
+RUN yum update && yum -y upgrade \
+ && yum -y install epel-release \
+ && yum -y install libtommath libicu \
+ && yum -y clean all
 
 RUN curl $MIRROR_URL | tar zxf - \
  && tar zxf Firebird-$RELEASE.$BUILD.$ARCH/buildroot.tar.gz \
