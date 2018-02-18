@@ -1,38 +1,32 @@
-FROM centos:7
-MAINTAINER Filipe Vieira dos Santos "filipevieiradossantos@gmail.com"
+FROM ubuntu:16.04
 
-ENV RELEASE=3.0.2
-ENV BUILD=32703-0
-ENV ARCH=amd64
-ENV MIRROR_URL=https://jaist.dl.sourceforge.net/project/firebird/firebird-linux-$ARCH/$RELEASE-Release/Firebird-$RELEASE.$BUILD.$ARCH.tar.gz
-USER root
-WORKDIR /
+ENV PREFIX=/usr/local/firebird
+ENV VOLUME=/firebird
+ENV DEBIAN_FRONTEND noninteractive
+ENV FBURL=https://github.com/FirebirdSQL/firebird/releases/download/R3_0_3/Firebird-3.0.3.32900-0.tar.bz2
+ENV DBPATH=/firebird/data
 
-RUN yum -y update && yum -y upgrade \
- && yum -y install epel-release \
- && yum -y install libtommath libicu \
- && yum -y clean all
+COPY build.sh ./build.sh
 
-RUN curl $MIRROR_URL | tar zxf - \
- && tar zxf Firebird-$RELEASE.$BUILD.$ARCH/buildroot.tar.gz \
- && rm -rf Firebird-$RELEASE.$BUILD.$ARCH \
- && mkdir /data \
- && mv /opt/firebird/security3.fdb /data \
- && mkdir /data/example \
- && mv /opt/firebird/examples/empbuild/employee.fdb /data/example \
- && chmod 644 /data/example/employee.fdb \
- && sed -i -e 's/^#SecurityDatabase.*security3.fdb$/SecurityDatabase = \/data\/security3.fdb/' /opt/firebird/firebird.conf \
- && sed -i -e 's/^#DatabaseAccess.*Full$/DatabaseAccess = Restrict \/data/' /opt/firebird/firebird.conf \
- && sed -i -e 's/^#RemoteAccess.*true$/RemoteAccess = true/' /opt/firebird/firebird.conf \
- && sed -i -e 's/^#RemoteFileOpenAbility.*0$/RemoteFileOpenAbility = 1/' /opt/firebird/firebird.conf \
- && sed -i -e 's/^#WireCrypt.*server)$/WireCrypt = Enabled/' /opt/firebird/firebird.conf \
- && sed -i -e 's/^#ServerMode.*Super$/ServerMode = Super/' /opt/firebird/firebird.conf \
- && sed -i -e 's/\$(dir_sampleDb)/\/data\/example/g' /opt/firebird/databases.conf \
- && sed -i -e 's/\$(dir_secDb)/\/data/g' /opt/firebird/databases.conf \
- && /opt/firebird/bin/gsec -add sysdba -pw masterkey
+RUN chmod +x ./build.sh && \
+    sync && \
+    ./build.sh && \
+    rm -f ./build.sh
 
-ADD start_firebird.sh /
+VOLUME ["/firebird"]
 
 EXPOSE 3050/tcp
-VOLUME /data
-ENTRYPOINT ["/start_firebird.sh"]
+
+COPY docker-entrypoint.sh ${PREFIX}/docker-entrypoint.sh
+RUN chmod +x ${PREFIX}/docker-entrypoint.sh
+
+COPY docker-healthcheck.sh ${PREFIX}/docker-healthcheck.sh
+RUN chmod +x ${PREFIX}/docker-healthcheck.sh \
+    && apt-get -y update \
+    && apt-get -qy install netcat \
+    && rm -rf /var/lib/apt/lists/*
+HEALTHCHECK CMD ${PREFIX}/docker-healthcheck.sh || exit 1
+
+ENTRYPOINT ["/usr/local/firebird/docker-entrypoint.sh"]
+
+CMD ["/usr/local/firebird/bin/fbguard"]
