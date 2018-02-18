@@ -10,7 +10,7 @@ COPY build.sh ./build.sh
 
 RUN chmod +x /build.sh
 RUN sync
-RUN /build.sh
+RUN ./build.sh
 RUN rm -f /build.sh
 
 VOLUME ["/firebird"]
