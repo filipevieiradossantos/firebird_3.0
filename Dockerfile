@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-LABEL maintainer= Filipe Vieira "filipevieiradossantos@gmail.com"
+LABEL maintainer= "Filipe Vieira"
 
 ENV PREFIX=/usr/local/firebird
 ENV VOLUME=/firebird
